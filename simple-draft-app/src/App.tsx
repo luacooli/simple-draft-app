@@ -1,5 +1,6 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { Route, Link } from 'wouter';
+import { Editor, EditorState, convertToRaw, convertFromRaw } from 'draft-js';
 import { useState } from 'react'
 import './App.css'
 
@@ -23,11 +24,13 @@ const GET_NOTES_QUERY = gql`
 
 function App() {
   const [text, setText] = useState('');
+  // const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [saveNote] = useMutation(SAVE_NOTE_MUTATION);
   const { data, refetch } = useQuery(GET_NOTES_QUERY);
 
-  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleChange = (event) => {
     setText(event.target.value);
+    // setEditorState(state);
   };
 
   const handleSave = async () => {
@@ -41,6 +44,11 @@ function App() {
     <>
       <h1>Write a Draft</h1>
       <div className="card">
+        {/* <Editor
+          editorState={editorState}
+          onChange={handleChange}
+          placeholder="Write something!"
+        /> */}
         <textarea
           value={text}
           onChange={handleChange}
@@ -52,12 +60,12 @@ function App() {
         <br />
         <button onClick={handleSave}>Save note</button>
       </div>
-      <div>
+      {/* <div>
         <h2>Saved Notes</h2>
         {data?.notes.map((note: { id: string; content: string }) => (
           <p key={note.id}>{note.content}</p>
         ))}
-      </div>
+      </div> */}
     </>
   )
 }
