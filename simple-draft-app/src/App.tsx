@@ -1,12 +1,8 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { Route, Link } from 'wouter';
 import { Editor, EditorState, convertToRaw, convertFromRaw } from 'draft-js';
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
-
-if (typeof global === 'undefined') {
-  window.global = window
-}
 
 const SAVE_NOTE_MUTATION = gql`
   mutation SaveNote($content: String!) {
@@ -27,25 +23,47 @@ const GET_NOTES_QUERY = gql`
 `;
 
 function App() {
-  const [text, setText] = useState('');
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const [saveNote] = useMutation(SAVE_NOTE_MUTATION);
-  const { data, refetch } = useQuery(GET_NOTES_QUERY);
+  // const [text, setText] = useState('')
+  const [editorState, setEditorState] = useState(() => EditorState.createEmpty())
+  const [saveNote] = useMutation(SAVE_NOTE_MUTATION)
+  const { data, refetch } = useQuery(GET_NOTES_QUERY)
 
-  const handleChange = (event) => {
-    // setText(event.target.value);
-    setEditorState(event);
-  };
-  console.log(editorState);
+  const handleChange = (state: EditorState) => {
+    setEditorState(state);
+  }
 
   const handleSave = async () => {
-    // await saveNote({
-    //   variables: { content: text },
-    // });
-    // refetch();
+    console.log('current v');
+    console.log(editorState.getCurrentContent());
+
+    const contentState = editorState.getCurrentContent()
+    console.log(`contentState: ${contentState}`)
+
+    const rawContentState = convertToRaw(contentState)
+    console.log(`rawContent: ${rawContentState}`)
+
+    const content = JSON.stringify(rawContentState)
+    console.log(`content: ${content}`)
+
+    setEditorState(content)
+
+    await saveNote({
+      variables: { content },
+    });
+
     localStorage.setItem('draft', editorState)
-    console.log(`nota salva! -> ${editorState}`);
+    console.log(`nota salva! -> ${editorState}`)
+
+    refetch()
   };
+
+  // useEffect(() => {
+  //   if (data && data.notes.length > 0) {
+  //     const latestNote = data.notes[data.notes.length - 1];
+  //     const contentState = convertFromRaw(JSON.parse(latestNote.content));
+  //     setEditorState(EditorState.createWithContent(contentState));
+  //   }
+  // }, [data]);
 
   return (
     <>
@@ -54,8 +72,8 @@ function App() {
         <Editor
           editorState={editorState}
           onChange={handleChange}
-          placeholder="Write something!"
         />
+        {/* placeholder="Write something!" */}
         {/* <textarea
           value={text}
           onChange={handleChange}
@@ -67,7 +85,7 @@ function App() {
         <br />
         <button onClick={handleSave}>Save note</button>
 
-        {text && <p>Sua mensagem: {text}</p>}
+        {/* {editorState && <p>Sua mensagem: {editorState}</p>} */}
       </div>
       {/* <div>
         <h2>Saved Notes</h2>
