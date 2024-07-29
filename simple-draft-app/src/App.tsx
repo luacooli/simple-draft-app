@@ -1,7 +1,8 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
-import { Route, Link } from 'wouter';
-import { Editor, EditorState, convertToRaw } from 'draft-js';
 import { useState } from 'react'
+import { Route, Link } from 'wouter';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { Editor, EditorState, convertToRaw } from 'draft-js';
+import SavedNotes from './components/SavedNotes';
 import './App.css'
 
 const SAVE_NOTE_MUTATION = gql`
@@ -25,6 +26,7 @@ const GET_NOTES_QUERY = gql`
 function App() {
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty())
   const [currentNote, setCurrentNote] = useState(() => EditorState.createEmpty())
+
   const [saveNote] = useMutation(SAVE_NOTE_MUTATION)
   const { data, refetch } = useQuery(GET_NOTES_QUERY)
 
@@ -42,7 +44,10 @@ function App() {
       variables: { content },
     });
 
+    // método para re-executar a consulta do Apollo Client para obter dados atualizados
     refetch()
+
+    setEditorState(EditorState.createEmpty())
   };
 
   return (
@@ -52,19 +57,17 @@ function App() {
         <Editor
           editorState={editorState}
           onChange={handleChange}
+          placeholder="Write something!"
         />
-        {/* placeholder="Write something!" */}
+
         <br />
         <br />
+
         <button onClick={handleSave}>Save note</button>
 
       </div>
-      <div>
-        <h2>Saved Notes</h2>
-        {data?.notes.map((note: { id: string; content: string }) => (
-          <p key={note.id}>{note.content}</p>
-        ))}
-      </div>
+
+      <SavedNotes />
     </>
   )
 }
