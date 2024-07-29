@@ -5,18 +5,20 @@ import client from './apolloClient';
 import App from './App';
 import { Router } from 'wouter';
 
-// if (typeof global === 'undefined') {
-//   window.global = window
-// }
+const container = document.getElementById('root');
 
-const root = createRoot(document.getElementById('root'));
+if (container) {
+  const root = createRoot(container);
+  root.render(
+    <React.StrictMode>
+      <ApolloProvider client={client}>
+        <Router>
+          <App />
+        </Router>
+      </ApolloProvider>
+    </React.StrictMode>
+  );
+} else {
+  console.error('Failed to find the root element');
+}
 
-root.render(
-  <React.StrictMode>
-    <ApolloProvider client={client}>
-      <Router>
-        <App />
-      </Router>
-    </ApolloProvider>
-  </React.StrictMode>
-);

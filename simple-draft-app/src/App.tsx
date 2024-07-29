@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { Route, Link } from 'wouter';
 import { gql, useMutation, useQuery } from '@apollo/client';
-import { Editor, EditorState, convertToRaw } from 'draft-js';
+import { Editor, EditorState } from 'draft-js';
 import SavedNotes from './components/SavedNotes';
 import './App.css'
 
@@ -28,7 +27,7 @@ function App() {
   const [currentNote, setCurrentNote] = useState(() => EditorState.createEmpty())
 
   const [saveNote] = useMutation(SAVE_NOTE_MUTATION)
-  const { data, refetch } = useQuery(GET_NOTES_QUERY)
+  const { refetch } = useQuery(GET_NOTES_QUERY)
 
   const handleChange = (state: EditorState) => {
     setEditorState(state);
@@ -39,6 +38,7 @@ function App() {
     const content = contentState.getPlainText()
 
     setCurrentNote(content)
+    console.log(currentNote);
 
     await saveNote({
       variables: { content },
