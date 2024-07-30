@@ -24,7 +24,6 @@ const GET_NOTES_QUERY = gql`
 
 function App() {
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty())
-  const [currentNote, setCurrentNote] = useState(() => EditorState.createEmpty())
 
   const [saveNote] = useMutation(SAVE_NOTE_MUTATION)
   const { refetch } = useQuery(GET_NOTES_QUERY)
@@ -36,9 +35,6 @@ function App() {
   const handleSave = async () => {
     const contentState = editorState.getCurrentContent()
     const content = contentState.getPlainText()
-
-    setCurrentNote(content)
-    console.log(currentNote);
 
     await saveNote({
       variables: { content },
